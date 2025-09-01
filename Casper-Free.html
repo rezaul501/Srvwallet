@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EarnBot - Telegram Mini App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            background: white;
+            min-height: 100vh;
+            position: relative;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            padding: 20px;
+            text-align: center;
+            color: white;
+        }
+        
+        .balance {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .points {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .nav-tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .nav-tab {
+            flex: 1;
+            padding: 15px 10px;
+            text-align: center;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 12px;
+            color: #666;
+            transition: all 0.3s;
+        }
+        
+        .nav-tab.active {
+            background: white;
+            color: #4facfe;
+            border-bottom: 2px solid #4facfe;
+        }
+        
+        .tab-content {
+            display: none;
+            padding: 20px;
+            min-height: 400px;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .task-card {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+        
+        .task-card:hover {
+            transform: translateY(-2px);
+        }
+        
+        .task-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        
+        .task-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            margin-right: 12px;
+        }
+        
+        .telegram-icon { background: #0088cc; color: white; }
+        .twitter-icon { background: #1da1f2; color: white; }
+        .ads-icon { background: #ff6b6b; color: white; }
+        
+        .task-info {
+            flex: 1;
+        }
+        
+        .task-title {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .task-reward {
+            color: #28a745;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .task-btn {
+            background: #4facfe;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s;
+        }
+        
+        .task-btn:hover {
+            background: #3d8bfe;
+        }
+        
+        .task-btn.completed {
+            background: #28a745;
+            cursor: default;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #4facfe;
+        }
+        
+        .btn-primary {
+            background: #4facfe;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            width: 100%;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary:hover {
+            background: #3d8bfe;
+        }
+        
+        .referral-code {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .referral-link {
+            background: #e9ecef;
+            padding: 10px;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 12px;
+            word-break: break-all;
+            margin: 10px 0;
+        }
+        
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .history-date {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .history-amount {
+            font-weight: 600;
+            color: #28a745;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #4facfe;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="balance" id="balance">0</div>
+            <div class="points">Total Points Earned</div>
+        </div>
+        
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="showTab('earn')">Earn</button>
+            <button class="nav-tab" onclick="showTab('withdraw')">Withdraw</button>
+            <button class="nav-tab" onclick="showTab('referral')">Referral</button>
+            <button class="nav-tab" onclick="showTab('history')">History</button>
+        </div>
+        
+        <!-- Earn Tab -->
+        <div id="earn" class="tab-content active">
+            <div class="task-card">
+                <div class="task-header">
+                    <div style="display: flex; align-items: center;">
+                        <div class="task-icon telegram-icon">📱</div>
+                        <div class="task-info">
+                            <div class="task-title">Join Telegram Group</div>
+                            <div class="task-reward">+10 Points</div>
+                        </div>
+                    </div>
+                    <button class="task-btn" onclick="completeTask(this, 10, 'telegram-group')">Join</button>
+                </div>
+            </div>
+            
+            <div class="task-card">
+                <div class="task-header">
+                    <div style="display: flex; align-items: center;">
+                        <div class="task-icon telegram-icon">📢</div>
+                        <div class="task-info">
+                            <div class="task-title">Subscribe Telegram Channel</div>
+                            <div class="task-reward">+10 Points</div>
+                        </div>
+                    </div>
+                    <button class="task-btn" onclick="completeTask(this, 10, 'telegram-channel')">Subscribe</button>
+                </div>
+            </div>
+            
+            <div class="task-card">
+                <div class="task-header">
+                    <div style="display: flex; align-items: center;">
+                        <div class="task-icon twitter-icon">🐦</div>
+                        <div class="task-info">
+                            <div class="task-title">Follow Twitter Account</div>
+                            <div class="task-reward">+10 Points</div>
+                        </div>
+                    </div>
+                    <button class="task-btn" onclick="completeTask(this, 10, 'twitter-follow')">Follow</button>
+                </div>
+            </div>
+            
+            <div class="task-card">
+                <div class="task-header">
+                    <div style="display: flex; align-items: center;">
+                        <div class="task-icon twitter-icon">❤️</div>
+                        <div class="task-info">
+                            <div class="task-title">Like Twitter Post</div>
+                            <div class="task-reward">+10 Points</div>
+                        </div>
+                    </div>
+                    <button class="task-btn" onclick="completeTask(this, 10, 'twitter-like')">Like</button>
+                </div>
+            </div>
+            
+            <div class="task-card">
+                <div class="task-header">
+                    <div style="display: flex; align-items: center;">
+                        <div class="task-icon twitter-icon">💬</div>
+                        <div class="task-info">
+                            <div class="task-title">Quote Tweet</div>
+                            <div class="task-reward">+10 Points</div>
+                        </div>
+                    </div>
+                    <button class="task-btn" onclick="completeTask(this, 10, 'twitter-quote')">Quote</button>
+                </div>
+            </div>
+            
+            <div class="task-card">
+                <div class="task-header">
+                    <div style="display: flex; align-items: center;">
+                        <div class="task-icon ads-icon">📺</div>
+                        <div class="task-info">
+                            <div class="task-title">Watch Advertisement</div>
+                            <div class="task-reward">+10 Points</div>
+                        </div>
+                    </div>
+                    <button class="task-btn" onclick="watchAd(this)">Watch</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Withdraw Tab -->
+        <div id="withdraw" class="tab-content">
+            <div class="form-group">
+                <label class="form-label">Withdrawal Method</label>
+                <select class="form-input" id="withdrawMethod">
+                    <option value="usdt">USDT (Binance)</option>
+                    <option value="btc">Bitcoin</option>
+                    <option value="eth">Ethereum</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Binance UID / Wallet Address</label>
+                <input type="text" class="form-input" id="walletAddress" placeholder="Enter your Binance UID or wallet address">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Amount (Points)</label>
+                <input type="number" class="form-input" id="withdrawAmount" placeholder="Minimum 1000 points" min="1000">
+            </div>
+            
+            <div style="background: #fff3cd; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-size: 14px;">
+                <strong>Exchange Rate:</strong> 1000 Points = 1 USDT<br>
+                <strong>Minimum:</strong> 1000 Points<br>
+                <strong>Processing:</strong> 24-48 hours
+            </div>
+            
+            <button class="btn-primary" onclick="processWithdrawal()">Request Withdrawal</button>
+        </div>
+        
+        <!-- Referral Tab -->
+        <div id="referral" class="tab-content">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number" id="referralCount">0</div>
+                    <div class="stat-label">Total Referrals</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="referralEarnings">0</div>
+                    <div class="stat-label">Points Earned</div>
+                </div>
+            </div></div>
+            
+            <div class="referral-code">
+                <h3 style="margin-bottom: 10px;">Your Referral Code</h3>
+                <div class="referral-link" id="referralLink">https://t.me/earnbot?start=REF123456</div>
+                <button class="btn-primary" onclick="copyReferralLink()" style="margin-top: 10px;">Copy Link</button>
+            </div>
+            
+            <div style="background: #d4edda; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                <strong>Referral Rewards:</strong><br>
+                • Get 50 points for each referral<br>
+                • Your referrals get 25 bonus points<br>
+                • Earn 10% of their task completions
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Enter Referral Code (Optional)</label>
+                <input type="text" class="form-input" id="enterReferralCode" placeholder="Enter referral code">
+                <button class="btn-primary" onclick="applyReferralCode()" style="margin-top: 10px;">Apply Code</button>
+            </div>
+        </div>
+        
+        <!-- History Tab -->
+        <div id="history" class="tab-content">
+            <h3 style="margin-bottom: 20px;">Transaction History</h3>
+            <div style="text-align: center; color: #666; padding: 40px 20px;">
+                <div style="font-size: 48px; margin-bottom: 15px;">📋</div>
+                <div>No transactions yet</div>
+                <div style="font-size: 14px; margin-top: 5px;">Complete tasks to see your earning history</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentBalance = 0;
+        let referralCount = 0;
+        let referralEarnings = 0;
+        
+        function showTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Remove active class from all nav tabs
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+            
+            // Add active class to clicked nav tab
+            event.target.classList.add('active');
+        }
+        
+        function completeTask(button, points, taskType) {
+            // Simulate task completion
+            setTimeout(() => {
+                button.textContent = '✓ Completed';
+                button.classList.add('completed');
+                button.disabled = true;
+                
+                // Update balance
+                currentBalance += points;
+                document.getElementById('balance').textContent = currentBalance.toLocaleString();
+                
+                // Add to history
+                addToHistory(getTaskName(taskType), points);
+                
+                // Show success message
+                showNotification(`+${points} points earned!`);
+            }, 1500);
+            
+            // Show loading state
+            button.textContent = 'Processing...';
+            button.disabled = true;
+        }
+        
+        function watchAd(button) {
+            button.textContent = 'Loading Ad...';
+            button.disabled = true;
+            
+            // Simulate ad watching
+            setTimeout(() => {
+                // Create ad overlay
+                const adOverlay = document.createElement('div');
+                adOverlay.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(0,0,0,0.9);
+                    z-index: 1000;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    color: white;
+                `;
+                
+                adOverlay.innerHTML = `
+                    <div style="text-align: center;">
+                        <h2>Advertisement</h2>
+                        <div style="margin: 20px 0; font-size: 18px;">🎮 Play Amazing Games!</div>
+                        <div id="adTimer" style="font-size: 24px; margin: 20px 0;">15</div>
+                        <div>Please wait to earn your reward...</div>
+                    </div>
+                `;
+                
+                document.body.appendChild(adOverlay);
+                
+                // Countdown timer
+                let timeLeft = 15;
+                const timer = setInterval(() => {
+                    timeLeft--;
+                    document.getElementById('adTimer').textContent = timeLeft;
+                    
+                    if (timeLeft <= 0) {
+                        clearInterval(timer);
+                        document.body.removeChild(adOverlay);
+                        
+                        // Complete the task
+                        button.textContent = '✓ Completed';
+                        button.classList.add('completed');
+                        button.disabled = true;
+                        
+                        currentBalance += 10;
+                        document.getElementById('balance').textContent = currentBalance.toLocaleString();
+                        addToHistory('Watch Advertisement', 10);
+                        showNotification('+10 points earned!');
+                    }
+                }, 1000);
+            }, 1000);
+        }
+        
+        function processWithdrawal() {
+            const method = document.getElementById('withdrawMethod').value;
+            const address = document.getElementById('walletAddress').value;
+            const amount = parseInt(document.getElementById('withdrawAmount').value);
+            
+            if (!address) {
+                alert('Please enter your wallet address or Binance UID');
+                return;
+            }
+            
+            if (!amount || amount < 1000) {
+                alert('Minimum withdrawal amount is 1000 points');
+                return;
+            }
+            
+            if (amount > currentBalance) {
+                alert('Insufficient balance');
+                return;
+            }
+            
+            // Process withdrawal
+            currentBalance -= amount;
+            document.getElementById('balance').textContent = currentBalance.toLocaleString();
+            
+            // Add to history
+            addToHistory(`${method.toUpperCase()} Withdrawal`, -amount);
+            
+            // Clear form
+            document.getElementById('walletAddress').value = '';
+            document.getElementById('withdrawAmount').value = '';
+            
+            showNotification('Withdrawal request submitted! Processing within 24-48 hours.');
+        }
+        
+        function copyReferralLink() {
+            const link = document.getElementById('referralLink').textContent;
+            navigator.clipboard.writeText(link).then(() => {
+                showNotification('Referral link copied to clipboard!');
+            });
+        }
+        
+        function applyReferralCode() {
+            const code = document.getElementById('enterReferralCode').value;
+            if (code) {
+                showNotification('Referral code applied! You earned 25 bonus points.');
+                currentBalance += 25;
+                document.getElementById('balance').textContent = currentBalance.toLocaleString();
+                addToHistory('Referral Bonus', 25);
+                document.getElementById('enterReferralCode').value = '';
+            }
+        }
+        
+        function getTaskName(taskType) {
+            const names = {
+                'telegram-group': 'Telegram Group Join',
+                'telegram-channel': 'Telegram Channel Subscribe',
+                'twitter-follow': 'Twitter Follow',
+                'twitter-like': 'Twitter Like',
+                'twitter-quote': 'Quote Tweet'
+            };
+            return names[taskType] || 'Task Completed';
+        }
+        
+        function addToHistory(taskName, points) {
+            const historyTab = document.getElementById('history');
+            const newItem = document.createElement('div');
+            newItem.className = 'history-item';
+            
+            const now = new Date();
+            const dateStr = now.toISOString().slice(0, 16).replace('T', ' ');
+            
+            const pointsClass = points > 0 ? 'history-amount' : 'style="color: #dc3545; font-weight: 600;"';
+            const sign = points > 0 ? '+' : '';
+            
+            newItem.innerHTML = `
+                <div>
+                    <div style="font-weight: 500; ${points < 0 ? 'color: #dc3545;' : ''}">${taskName}</div>
+                    <div class="history-date">${dateStr}</div>
+                </div>
+                <div ${pointsClass}>${sign}${points}</div>
+            `;
+            
+            // Insert at the beginning
+            const firstItem = historyTab.querySelector('.history-item');
+            if (firstItem) {
+                historyTab.insertBefore(newItem, firstItem);
+            } else {
+                historyTab.appendChild(newItem);
+            }
+        }
+        
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: #28a745;
+                color: white;
+                padding: 12px 24px;
+                border-radius: 8px;
+                z-index: 1000;
+                font-weight: 500;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            `;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                document.body.removeChild(notification);
+            }, 3000);
+        }
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9782734f66934ea6',t:'MTc1NjcwNTQxMC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
